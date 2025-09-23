@@ -10,6 +10,7 @@
 - workmanager: 0.9.0+3
 - connectivity_plus: 7.0.0
 - isar: 3.1.0+1
+- dio: 5.9.0
 
 ## API Endpoint
 
