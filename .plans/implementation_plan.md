@@ -2,38 +2,37 @@
 
 ## プロジェクト概要
 
-`workmanager`、`connectivity_plus`、`isar`の機能を試すためのFlutterサンプルアプリケーション。
-Isarで保存したデータを、ネットワーク接続状況に応じて仮のAPI（JSONplaceholder）に自動同期する機能を実装します。
+`connectivity_plus`のネット接続機能を試すためのFlutterサンプルアプリケーション。
+`Isar`で保存したデータを、仮のAPI（`JSONplaceholder`）に定期的に送信することを想定しています。
+時間管理には`Timer`を使用し、15分おきに未同期データをチェックして送信するシンプルな実装を目指します。
 
 ## 実装目標
 
-- **バックグラウンド処理**: `workmanager`を使用してアプリが閉じられていても定期的にデータ同期を実行
+- **定期処理**: `Timer`を使用してアプリ使用中に15分間隔で定期的にデータ同期を実行
 - **ネットワーク監視**: `connectivity_plus`でネットワーク接続状況を監視し、接続時のみ同期を実行
 - **ローカルデータベース**: `isar`を使用してデータのローカル保存と同期状態管理
 - **API通信**: JSONplaceholderエンドポイントを使用した仮のデータ送信
+- **シンプルな設計**: 公式ドキュメントに基づいたシンプルで理解しやすい実装
 
 ## 実装進捗
 
-### 現在の進捗: Phase 3 完了、Phase 4 準備中 (3/11)
+### 現在の進捗: Phase 4 進行中 (4/9)
 
 - ✅ **Phase 1: 基盤セットアップ** - 完了 (2025/1/24)
 - ✅ **Phase 2: データモデル設計** - 完了 (2025/1/24)
 - ✅ **Phase 3: データベース層実装** - 完了 (2025/1/24)
-- ⏳ **Phase 4: ネットワーク層実装** - 準備中
+- 🔄 **Phase 4: ネットワーク層実装** - 進行中 (ConnectivityService完了、ApiService準備中)
 - ⏳ **Phase 5: 同期サービス実装** - 未着手
-- ⏳ **Phase 6: バックグラウンド処理実装** - 未着手
+- ⏳ **Phase 6: Timer処理実装** - 未着手
 - ⏳ **Phase 7: UI実装** - 未着手
 - ⏳ **Phase 8: Android設定** - 未着手
-- ⏳ **Phase 9: iOS設定** - 未着手
-- ⏳ **Phase 10: テストと最適化** - 未着手
-- ⏳ **Phase 11: ドキュメント作成** - 未着手
+- ⏳ **Phase 9: テストと最適化** - 未着手
 
 ## TODO リスト
 
 ### Phase 1: 基盤セットアップ ✅ **完了**
 
 - [x] 必要なパッケージをpubspec.yamlに追加
-    - workmanager: 0.9.0+3 ✅
     - connectivity_plus: 7.0.0 ✅
     - isar: 3.1.0+1 ✅
     - isar_flutter_libs: ^3.1.0+1 ✅
@@ -42,7 +41,9 @@ Isarで保存したデータを、ネットワーク接続状況に応じて仮�
 - [x] dev_dependenciesにisar_generatorとbuild_runnerを追加
     - isar_generator: ^3.1.0+1 ✅
     - build_runner: ^2.4.13 ✅ (競合回避のためダウングレード)
-- [x] プロジェクト構造の整理（models、services、repositories、screens、utils）✅### Phase 2: データモデル設計 ✅ **完了**
+- [x] プロジェクト構造の整理（models、services、repositories、screens、utils）✅
+
+### Phase 2: データモデル設計 ✅ **完了**
 
 - [x] Isarコレクション用のPostモデル作成 ✅
     - id (auto-increment) ✅
@@ -70,9 +71,10 @@ Isarで保存したデータを、ネットワーク接続状況に応じて仮�
 
 ### Phase 4: ネットワーク層実装
 
-- [ ] ConnectivityServiceクラス作成
-    - ネットワーク接続状況の監視
-    - 接続状態変更の通知機能
+- [x] ConnectivityServiceクラス作成 ✅
+    - [x] 基本的なネットワーク接続状況取得機能 ✅
+    - [x] エラーハンドリング実装 ✅
+    - [x] シンプルなYAGNI準拠設計 ✅
 - [ ] ApiServiceクラス実装
     - JSONplaceholder APIへのPOST送信（dioを使用）
     - レスポンス処理とエラーハンドリング
@@ -88,14 +90,15 @@ Isarで保存したデータを、ネットワーク接続状況に応じて仮�
     - エラー時の再試行ロジック
 - [ ] 同期処理のテスト実装
 
-### Phase 6: バックグラウンド処理実装
+### Phase 6: Timer処理実装
 
-- [ ] Workmanagerの初期化設定
-- [ ] バックグラウンド同期タスクの登録
-    - 定期実行タスク（15分間隔）
-    - ワンショット実行タスク（即座実行用）
-- [ ] コールバック関数の実装
-- [ ] Android/iOSの必要な設定追加
+- [ ] TimerServiceクラス作成
+    - 15分間隔の定期実行Timer設定
+    - アプリ使用中のみ動作する制御機能
+    - Timer開始/停止メソッド
+    - ライフサイクル管理（アプリが非表示になったら停止）
+- [ ] メイン画面でのTimer制御統合
+- [ ] Timer処理のテスト実装
 
 ### Phase 7: UI実装
 
@@ -115,32 +118,16 @@ Isarで保存したデータを、ネットワーク接続状況に応じて仮�
 
 - [ ] AndroidManifest.xmlの設定
     - INTERNET権限の追加
-    - WAKE_LOCK権限の追加（必要に応じて）
     - Flutter embedding version 2の確認
 - [ ] build.gradleの最小SDK確認
 
-### Phase 9: iOS設定（将来対応）
-
-- [ ] Info.plistの設定
-    - Background Modesの有効化
-    - UIBackgroundModesの設定
-- [ ] AppDelegate.swiftの設定
-    - Workmanagerプラグインの登録
-
-### Phase 10: テストと最適化
+### Phase 9: テストと最適化
 
 - [ ] 各コンポーネントの単体テスト
 - [ ] 統合テストの実装
-- [ ] バックグラウンド処理の動作確認
+- [ ] Timer処理の動作確認
 - [ ] パフォーマンスの最適化
 - [ ] エラーハンドリングの強化
-
-### Phase 11: ドキュメント作成
-
-- [ ] README.mdの更新
-- [ ] API仕様書の作成
-- [ ] セットアップ手順書の作成
-- [ ] 使用方法の説明書
 
 ## ファイル構成計画
 
@@ -155,7 +142,7 @@ lib/
 │   ├── connectivity_service.dart
 │   ├── api_service.dart
 │   ├── sync_service.dart
-│   └── workmanager_service.dart
+│   └── timer_service.dart
 ├── repositories/
 │   └── post_repository.dart
 ├── screens/
@@ -167,11 +154,12 @@ lib/
 
 ## 技術的検討事項
 
-### Workmanager使用時の注意点
+### Timer使用時の注意点
 
-- iOS/Androidでの制限事項の理解
-- バックグラウンド処理の実行頻度制限
-- デバッグモードでの動作確認方法
+- アプリがバックグラウンドに移行したときの適切なTimer停止
+- アプリが再表示されたときのTimer再開
+- ウィジェットのライフサイクルとの連携
+- メモリリークの防止
 
 ### Connectivity Plus使用時の注意点
 
@@ -226,8 +214,8 @@ lib/
 
 ## 想定される課題と対策
 
-1. **バックグラウンド処理の制限**
-   - 対策: システムの制限を理解し、適切な実行頻度を設定
+1. **Timer処理の制限**
+   - 対策: アプリライフサイクルに連動したTimer制御とメモリリーク防止
 
 2. **ネットワーク接続の不安定性**
    - 対策: リトライ機構とオフライン対応の実装
@@ -238,4 +226,4 @@ lib/
 4. **メモリ使用量**
    - 対策: 大量データ処理時のバッチ処理実装
 
-この実装計画に従って段階的に開発を進めることで、要件を満たすサンプルアプリケーションを構築します。
+この実装計画に従って段階的に開発を進めることで、要件を満たすシンプルなサンプルアプリケーションを構築します。
